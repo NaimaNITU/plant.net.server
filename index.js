@@ -47,6 +47,7 @@ async function run() {
   try {
     const db = client.db("plantNet");
     const plantsCollection = db.collection("plants");
+    const usersCollection = db.collection("users");
 
     // Generate jwt token
     app.post("/jwt", async (req, res) => {
@@ -128,6 +129,16 @@ async function run() {
       });
 
       res.send({ client_Secret: paymentIntent.client_secret });
+    });
+
+    //save or update user info in db so that we can use it to see if the user sign up or if the user logged in
+    app.post("/users", async (req, res) => {
+      const userData = req.body;
+      userData.role = "customer";
+      userData.created_at = Date.now();
+      userData.last_loggedIn = Date.now();
+      const result = await usersCollection.insertOne(userData);
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
